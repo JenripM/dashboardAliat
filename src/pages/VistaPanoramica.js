@@ -7,7 +7,7 @@ import {
   BriefcaseIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
-import OfferDemandChart from '../components/OfferDemandChart';
+import CompetenciasAgrupadasChart from '../components/CompetenciasAgrupadasChart';
 import AspectosEntrevistasChart from '../components/AspectosEntrevistasChart';
 import AspectosCVChart from '../components/AspectosCVChart';
 import AreasOfInterestChart from '../components/AreasOfInterest';
@@ -305,7 +305,7 @@ const VistaPanoramica = () => {
       <AreasOfInterestChart />
 
       {/* Análisis Oferta vs Demanda */}
-      <OfferDemandChart />
+      <CompetenciasAgrupadasChart />
     </div>
   );
 };

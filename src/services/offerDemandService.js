@@ -413,7 +413,20 @@ export const getFieldsAnalysisAndRawData = async () => {
   // 1. Verificar caché primero
   const cached = cacheService.getMetrics(cacheKey);
   if (cached) {
-    return cached;
+    console.log('📦 Usando caché para fields_analysis_raw_data');
+    console.log('🔍 Caché contiene fieldAnalyses:', !!cached.fieldAnalyses);
+    
+    // Si el caché no tiene fieldAnalyses, es un caché antiguo, lo limpiamos
+    if (!cached.fieldAnalyses) {
+      console.log('🧹 Caché antiguo detectado, limpiando...');
+      cacheService.clearAllCache();
+      // Continuar con el cálculo nuevo
+    } else {
+      if (cached.fieldAnalyses) {
+        console.log('📊 Campos en caché:', Object.keys(cached.fieldAnalyses));
+      }
+      return cached;
+    }
   }
 
   try {
@@ -425,16 +438,31 @@ export const getFieldsAnalysisAndRawData = async () => {
     const fields = getAvailableFieldsFromData(practicasData, usersData);
     const allAnalysis = analyzeOfferDemandFromData(practicasData, usersData, null);
     
+    // Pre-calcular análisis para cada campo disponible y guardar en caché
+    const fieldAnalyses = {};
+    fields.forEach(field => {
+      console.log('🔄 Pre-calculando análisis para campo:', field.field);
+      const fieldAnalysis = analyzeOfferDemandFromData(practicasData, usersData, field.field);
+      console.log('📊 Resultado para', field.field, ':', {
+        totalOffers: fieldAnalysis.totalOffers,
+        totalUsers: fieldAnalysis.totalUsers,
+        competenciesCount: Object.keys(fieldAnalysis.competencies).length
+      });
+      fieldAnalyses[field.field] = fieldAnalysis;
+    });
+    
     const result = {
       fields,
       analysis: allAnalysis,
+      fieldAnalyses, // Nuevo: análisis pre-calculados por campo
       rawData: { practicasData, usersData }
     };
     
     // Guardar en caché solo los datos procesados (no raw data)
     const processedData = {
       fields,
-      analysis: allAnalysis
+      analysis: allAnalysis,
+      fieldAnalyses
     };
     
     cacheService.setMetrics(cacheKey, processedData);
@@ -445,6 +473,7 @@ export const getFieldsAnalysisAndRawData = async () => {
     return {
       fields: [],
       analysis: { competencies: {}, totalOffers: 0, totalUsers: 0, summary: {} },
+      fieldAnalyses: {},
       rawData: { practicasData: [], usersData: [] }
     };
   }

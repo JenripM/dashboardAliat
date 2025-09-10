@@ -41,15 +41,14 @@ const CompetenciasAgrupadasChart = () => {
         setError(null);
         
         // Cargar todos los datos en una sola llamada optimizada
-        const { analysis: fullAnalysis, rawData } = await getFieldsAnalysisAndRawData();
+        const { analysis: fullAnalysis, fieldAnalyses, rawData } = await getFieldsAnalysisAndRawData();
         
-        // Si hay rawData (primera carga), guardarlo para filtrado local
-        // Si no hay rawData (desde caché), solo usar analysis
-        if (rawData) {
-          setAllData({ analysis: fullAnalysis, rawData });
-        } else {
-          setAllData({ analysis: fullAnalysis, rawData: null });
-        }
+        // Guardar todos los datos disponibles
+        setAllData({ 
+          analysis: fullAnalysis, 
+          fieldAnalyses: fieldAnalyses || {},
+          rawData: rawData || null 
+        });
         
         setAnalysis(fullAnalysis);
         setBottleneckAnalysis(fullAnalysis);
@@ -68,7 +67,7 @@ const CompetenciasAgrupadasChart = () => {
   useEffect(() => {
     if (!allData) return;
     
-    const filterData = async () => {
+    const filterData = () => {
       setIsFiltering(true);
       
       if (selectedCareer === 'all') {
@@ -78,20 +77,20 @@ const CompetenciasAgrupadasChart = () => {
         return;
       }
       
-      // Si no hay rawData (desde caché), hacer nueva llamada para el filtro específico
-      if (!allData.rawData) {
-        try {
-          const filteredAnalysis = await analyzeOfferDemand(selectedCareer);
-          setAnalysis(filteredAnalysis);
-          setBottleneckAnalysis(filteredAnalysis);
-        } catch (error) {
-          console.error('Error filtrando datos:', error);
-          setAnalysis(allData.analysis);
-          setBottleneckAnalysis(allData.analysis);
-        }
-      } else {
-        // Si hay rawData, filtrar localmente usando la función del servicio
-        const { analyzeOfferDemandFromData } = await import('../services/offerDemandService');
+      // Usar datos pre-calculados del caché si están disponibles
+      if (allData.fieldAnalyses && allData.fieldAnalyses[selectedCareer]) {
+        const filteredAnalysis = allData.fieldAnalyses[selectedCareer];
+        console.log('🎯 Usando datos pre-calculados para:', selectedCareer);
+        console.log('📊 Datos filtrados:', filteredAnalysis);
+        setAnalysis(filteredAnalysis);
+        setBottleneckAnalysis(filteredAnalysis);
+        setIsFiltering(false);
+        return;
+      }
+      
+      // Si no hay datos pre-calculados, usar raw data para filtrar localmente
+      if (allData.rawData) {
+        const { analyzeOfferDemandFromData } = require('../services/offerDemandService');
         const filteredAnalysis = analyzeOfferDemandFromData(
           allData.rawData.practicasData,
           allData.rawData.usersData,
@@ -99,6 +98,10 @@ const CompetenciasAgrupadasChart = () => {
         );
         setAnalysis(filteredAnalysis);
         setBottleneckAnalysis(filteredAnalysis);
+      } else {
+        // Fallback: usar datos completos si no hay filtro específico
+        setAnalysis(allData.analysis);
+        setBottleneckAnalysis(allData.analysis);
       }
       
       setIsFiltering(false);
@@ -148,6 +151,13 @@ const CompetenciasAgrupadasChart = () => {
 
   const { competencies, totalOffers, totalUsers } = analysis;
   const { competencies: bottleneckCompetencies } = bottleneckAnalysis;
+  
+  // Debug: Verificar datos
+  console.log('🔍 Debug CompetenciasAgrupadasChart:');
+  console.log('📊 Analysis object:', analysis);
+  console.log('📈 Total offers:', totalOffers);
+  console.log('👥 Total users:', totalUsers);
+  console.log('🎯 Selected career:', selectedCareer);
 
   // Preparar datos para el gráfico de barras agrupadas
   const allCompetencies = Object.entries(competencies);
@@ -257,7 +267,7 @@ const CompetenciasAgrupadasChart = () => {
           <BarChart
             data={groupedData}
             layout="vertical"
-            margin={{ top: 20, right: 30, left: 120, bottom: 20 }}
+            margin={{ top: 80, right: 30, left: 120, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
@@ -272,31 +282,54 @@ const CompetenciasAgrupadasChart = () => {
               tick={{ fontSize: 14 }}
             />
             <Tooltip 
-              formatter={(value, name) => {
-                return [
-                  `${value}%`, 
-                  name === 'demandada' ? 'Demandado por las empresas' : 'Ofertado por usuarios'
-                ];
-              }}
-              labelFormatter={(label) => `Competencia: ${label}`}
-              contentStyle={{
-                backgroundColor: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                borderRadius: '6px',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                      <p className="font-medium text-gray-900 mb-2">
+                        Competencia: {label}
+                      </p>
+                      {payload.map((entry, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <div 
+                            className="w-3 h-3 rounded-sm" 
+                            style={{ backgroundColor: entry.color }}
+                          ></div>
+                          <span className="text-sm text-gray-700">
+                            {entry.dataKey === 'demandada' 
+                              ? 'Demandada por empresas' 
+                              : 'Ofertada por usuarios'
+                            }: <span className="font-semibold">{entry.value}%</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+                return null;
               }}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="top" 
+              height={50}
+              iconSize={20}
+              iconType="rect"
+              layout="horizontal"
+              align="center"
+              wrapperStyle={{ 
+                paddingBottom: '50px',
+              }}
+            />
             <Bar 
               dataKey="demandada" 
               name="Demandada por empresas"
-              fill="#166534"
+              fill="#D97706"
               radius={[0, 2, 2, 0]}
             />
             <Bar 
               dataKey="ofertada" 
               name="Ofertada por usuarios"
-              fill="#D97706"
+              fill="#166534"
               radius={[0, 2, 2, 0]}
             />
           </BarChart>
@@ -307,8 +340,8 @@ const CompetenciasAgrupadasChart = () => {
       <div className="mt-4 p-4 bg-gray-50 rounded-lg">
         <h4 className="text-sm font-medium text-gray-800 mb-2">Interpretación del gráfico de oferta vs demanda:</h4>
         <ul className="text-sm text-gray-600 space-y-1">
-          <li>• <span className="text-green-800 font-medium">Barras verdes:</span> Porcentaje de ofertas que requieren esta competencia</li>
-          <li>• <span className="text-orange-600 font-medium">Barras naranjas:</span> Porcentaje de usuarios que tienen esta competencia</li>
+          <li>• <span className="text-orange-600 font-medium">Barras naranjas:</span> Porcentaje de ofertas que requieren esta competencia</li>
+          <li>• <span className="text-green-800 font-medium">Barras verdes:</span> Porcentaje de usuarios que tienen esta competencia</li>
           <li>• <span className="text-gray-600 font-medium">Filtro:</span> Se aplica el filtro por área seleccionada (sincronizado con ambos gráficos)</li>
         </ul>
       </div>
