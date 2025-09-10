@@ -2,6 +2,11 @@
 
 Este dashboard está diseñado para gestionar y visualizar datos de chats del bot de MyWorkIn enfocado en universidades en el modelo B2B.
 
+## Accesibilidad
+Puedes ingresar con las siguientes credenciales de owner:
+- correo: admin@myworkin.com
+- contraseña: admin123
+
 ## Características
 
 - Dashboard con estadísticas generales
