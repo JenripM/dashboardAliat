@@ -65,6 +65,12 @@ const Layout = ({ children }) => {
         { name: 'Empresas', href: '/empresas', icon: BuildingOfficeIcon },
       ]
     },
+        {
+      title: 'Practicas',
+      items: [
+        { name: 'Convalidación', href: '/convalidacion', icon: UsersIcon },
+      ]
+    },
   ];
 
   return (
