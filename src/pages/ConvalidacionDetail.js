@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase"; // ajusta la ruta si difiere
 /* ===========================
    Utilidades simples
@@ -308,7 +308,7 @@ function EmpresaModalContent({ student }) {
 
 function InformeInicialModalContent({ student }) {
   const s = student || {}; // Esto asegura que no sea undefined o null
-  
+
   const estadoInicial = s?.informeInicial?.estado || "pendiente";
   const empresaPendiente = s?.empresa?.estado === "pendiente";
 
@@ -341,7 +341,8 @@ function InformeInicialModalContent({ student }) {
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">Carrera y Período</span>
               <span className="text-sm text-gray-900">
-                {s?.estudiante?.carrera || "—"} / {s?.informeInicial?.periodo || "—"}
+                {s?.estudiante?.carrera || "—"} /{" "}
+                {s?.informeInicial?.periodo || "—"}
               </span>
             </div>
           </div>
@@ -366,7 +367,9 @@ function InformeInicialModalContent({ student }) {
             <div>
               <div className="text-sm text-gray-500">Tipo de Práctica</div>
               <div className="mt-1">
-                <Badge tone="green">{s?.informeInicial?.tipoPractica || "—"}</Badge>
+                <Badge tone="green">
+                  {s?.informeInicial?.tipoPractica || "—"}
+                </Badge>
               </div>
             </div>
           </div>
@@ -374,11 +377,18 @@ function InformeInicialModalContent({ student }) {
       </div>
 
       {/* Información de la Empresa y Supervisor */}
-      <Section title="Información de la Empresa y Supervisor" icon={<IconBuilding />}>
+      <Section
+        title="Información de la Empresa y Supervisor"
+        icon={<IconBuilding />}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <Labeled label="Empresa">{s?.empresa?.razonSocial || "Sin empresa"}</Labeled>
-            <Labeled label="Área y Puesto">{s?.informeInicial?.puestoNombre || "—"}</Labeled>
+            <Labeled label="Empresa">
+              {s?.empresa?.razonSocial || "Sin empresa"}
+            </Labeled>
+            <Labeled label="Área y Puesto">
+              {s?.informeInicial?.puestoNombre || "—"}
+            </Labeled>
             <div className="text-sm text-gray-900 inline-flex items-center gap-1">
               <IconMap />
               {s?.informeInicial?.ubicacion || "—"}
@@ -386,10 +396,14 @@ function InformeInicialModalContent({ student }) {
           </div>
           <div className="space-y-3">
             <Labeled label="Supervisor y cargo">
-              {(s?.supervisor?.nombre || "—") + " - " + (s?.supervisor?.cargo || "—")}
+              {(s?.supervisor?.nombre || "—") +
+                " - " +
+                (s?.supervisor?.cargo || "—")}
             </Labeled>
             <Labeled label="Email y teléfono del Supervisor">
-              {(s?.supervisor?.email || "—") + " - " + (s?.supervisor?.telefono || "—")}
+              {(s?.supervisor?.email || "—") +
+                " - " +
+                (s?.supervisor?.telefono || "—")}
             </Labeled>
             <Labeled label="Horario de Prácticas">
               {(s?.informeInicial?.horasPractica || "—") + " horas/semana"}
@@ -401,24 +415,39 @@ function InformeInicialModalContent({ student }) {
       {/* Documentos Requeridos */}
       <Section title="Documentos Requeridos - Fase 1" icon={<IconDoc />}>
         <div className="space-y-3">
-          {[{ label: "Convenio de Prácticas", desc: "Contrato tripartito", url: s?.informeInicial?.convenioPracticas },
-            { label: "Plan de Capacitación", desc: "Formato universitario", url: s?.informeInicial?.planCapacitacion }]
-            .map((d, i) => (
-              <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-medium">{d.label}</div>
-                  <div className="text-sm text-gray-600">{d.desc}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {d.url ? <PillSubido /> : <PillPendiente />}
-                  {d.url && (
-                    <button onClick={() => window.open(d.url, "_blank")} className="px-3 py-1 text-sm border rounded hover:bg-gray-100">
-                      Ver
-                    </button>
-                  )}
-                </div>
+          {[
+            {
+              label: "Convenio de Prácticas",
+              desc: "Contrato tripartito",
+              url: s?.informeInicial?.convenioPracticas,
+            },
+            {
+              label: "Plan de Capacitación",
+              desc: "Formato universitario",
+              url: s?.informeInicial?.planCapacitacion,
+            },
+          ].map((d, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between p-4 border rounded-lg"
+            >
+              <div>
+                <div className="font-medium">{d.label}</div>
+                <div className="text-sm text-gray-600">{d.desc}</div>
               </div>
-            ))}
+              <div className="flex items-center gap-2">
+                {d.url ? <PillSubido /> : <PillPendiente />}
+                {d.url && (
+                  <button
+                    onClick={() => window.open(d.url, "_blank")}
+                    className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
+                  >
+                    Ver
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </Section>
 
@@ -426,50 +455,92 @@ function InformeInicialModalContent({ student }) {
       <Section title="Flujo de Validación - Fase 1" icon={<IconCheck />}>
         <div className="space-y-4">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5"><IconCheck /></span>
+            <span className="mt-0.5">
+              <IconCheck />
+            </span>
             <div>
               <div className="font-medium">Solicitud Enviada</div>
-              <div className="text-sm text-gray-600">{formatDateES(s?.informeInicial?.fechaInformeInicial)}</div>
+              <div className="text-sm text-gray-600">
+                {formatDateES(s?.informeInicial?.fechaInformeInicial)}
+              </div>
             </div>
           </div>
 
           <div className="flex items-start gap-3">
-            <span className={`mt-0.5 ${s?.informeInicial?.convenioPracticas ? "" : "opacity-60"}`}>
-              {s?.informeInicial?.convenioPracticas ? <IconCheck /> : <IconClock />}
+            <span
+              className={`mt-0.5 ${
+                s?.informeInicial?.convenioPracticas ? "" : "opacity-60"
+              }`}
+            >
+              {s?.informeInicial?.convenioPracticas ? (
+                <IconCheck />
+              ) : (
+                <IconClock />
+              )}
             </span>
             <div>
               <div className="font-medium">Convenio de Prácticas</div>
-              <div className="text-sm text-gray-600">{s?.informeInicial?.convenioPracticas ? "Documento enviado" : "Pendiente de envío"}</div>
+              <div className="text-sm text-gray-600">
+                {s?.informeInicial?.convenioPracticas
+                  ? "Documento enviado"
+                  : "Pendiente de envío"}
+              </div>
             </div>
           </div>
 
           <div className="flex items-start gap-3">
-            <span className={`mt-0.5 ${s?.informeInicial?.planCapacitacion ? "" : "opacity-60"}`}>
-              {s?.informeInicial?.planCapacitacion ? <IconCheck /> : <IconClock />}
+            <span
+              className={`mt-0.5 ${
+                s?.informeInicial?.planCapacitacion ? "" : "opacity-60"
+              }`}
+            >
+              {s?.informeInicial?.planCapacitacion ? (
+                <IconCheck />
+              ) : (
+                <IconClock />
+              )}
             </span>
             <div>
               <div className="font-medium">Plan de Capacitación</div>
-              <div className="text-sm text-gray-600">{s?.informeInicial?.planCapacitacion ? "Documento enviado" : "Pendiente de envío"}</div>
+              <div className="text-sm text-gray-600">
+                {s?.informeInicial?.planCapacitacion
+                  ? "Documento enviado"
+                  : "Pendiente de envío"}
+              </div>
             </div>
           </div>
 
           <div className="flex items-start gap-3">
-            <span className="mt-0.5"><IconClock /></span>
+            <span className="mt-0.5">
+              <IconClock />
+            </span>
             <div>
               <div className="font-medium">Revisión Administrativa</div>
-              <div className="text-sm text-gray-600">Validando documentos y información</div>
+              <div className="text-sm text-gray-600">
+                Validando documentos y información
+              </div>
             </div>
           </div>
 
           <div className="flex items-start gap-3 opacity-70">
             <span className="mt-0.5">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-400" fill="none">
-                <path d="M12 3v18M6 7h12M6 12h12M6 17h12" stroke="currentColor" strokeWidth="1.5" />
+              <svg
+                viewBox="0 0 24 24"
+                className="w-5 h-5 text-gray-400"
+                fill="none"
+              >
+                <path
+                  d="M12 3v18M6 7h12M6 12h12M6 17h12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
               </svg>
             </span>
             <div>
               <div className="font-medium">Aprobación Final</div>
-              <div className="text-sm text-gray-600">Pendiente de aprobación</div>
+              <div className="text-sm text-gray-600">
+                Pendiente de aprobación
+              </div>
             </div>
           </div>
         </div>
@@ -478,11 +549,10 @@ function InformeInicialModalContent({ student }) {
   );
 }
 
-
 function InformeFinalModalContent({ student }) {
-  const s = student || {};  // Asegúrate de que `student` no sea undefined
+  const s = student || {}; // Asegúrate de que `student` no sea undefined
 
-  const final = s?.informeFinal || {};  // Extrae `informeFinal` del objeto `student`
+  const final = s?.informeFinal || {}; // Extrae `informeFinal` del objeto `student`
 
   return (
     <div className="space-y-6">
@@ -490,17 +560,27 @@ function InformeFinalModalContent({ student }) {
       <Section title="Resumen del Informe Final" icon={<IconCheck />}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Labeled label="Estado">
-            {final?.estadoInformeFinal ? <PillAprobado /> : <Badge>Sin estado</Badge>}
+            {final?.estadoInformeFinal ? (
+              <PillAprobado />
+            ) : (
+              <Badge>Sin estado</Badge>
+            )}
           </Labeled>
-          <Labeled label="Fecha">{formatDateES(final?.fechaInformeFinal)}</Labeled>
+          <Labeled label="Fecha">
+            {formatDateES(final?.fechaInformeFinal)}
+          </Labeled>
           <div>
-            <div className="text-sm text-gray-500">Calificación de la Empresa</div>
+            <div className="text-sm text-gray-500">
+              Calificación de la Empresa
+            </div>
             <div className="mt-1 flex items-center gap-2">
               {final?.calificacionEmpresa ? <PillSubido /> : <PillPendiente />}
               {final?.calificacionEmpresa && (
                 <button
                   className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
-                  onClick={() => window.open(final.calificacionEmpresa, "_blank")}
+                  onClick={() =>
+                    window.open(final.calificacionEmpresa, "_blank")
+                  }
                 >
                   Ver
                 </button>
@@ -513,27 +593,33 @@ function InformeFinalModalContent({ student }) {
       {/* Certificaciones */}
       <Section title="Certificaciones" icon={<IconDoc />}>
         <div className="space-y-3">
-          {[{ label: "Certijoven", url: final?.certiJoven },
-            { label: "Certificado de Prácticas", url: final?.certiPracticas }]
-            .map((c, i) => (
-              <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-medium">{c.label}</div>
-                  <div className="text-sm text-gray-600">Archivo del certificado</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {c.url ? <PillSubido /> : <PillPendiente />}
-                  {c.url && (
-                    <button
-                      className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
-                      onClick={() => window.open(c.url, "_blank")}
-                    >
-                      Ver
-                    </button>
-                  )}
+          {[
+            { label: "Certijoven", url: final?.certiJoven },
+            { label: "Certificado de Prácticas", url: final?.certiPracticas },
+          ].map((c, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between p-4 border rounded-lg"
+            >
+              <div>
+                <div className="font-medium">{c.label}</div>
+                <div className="text-sm text-gray-600">
+                  Archivo del certificado
                 </div>
               </div>
-            ))}
+              <div className="flex items-center gap-2">
+                {c.url ? <PillSubido /> : <PillPendiente />}
+                {c.url && (
+                  <button
+                    className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
+                    onClick={() => window.open(c.url, "_blank")}
+                  >
+                    Ver
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </Section>
 
@@ -543,8 +629,12 @@ function InformeFinalModalContent({ student }) {
           <div className="divide-y">
             {Object.entries(final.formulario).map(([k, v]) => (
               <div key={k} className="py-3">
-                <div className="text-sm font-semibold text-gray-900">{v?.pregunta || "-"}</div>
-                <div className="text-sm text-gray-700 mt-0.5">{v?.respuesta || "-"}</div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {v?.pregunta || "-"}
+                </div>
+                <div className="text-sm text-gray-700 mt-0.5">
+                  {v?.respuesta || "-"}
+                </div>
               </div>
             ))}
           </div>
@@ -557,9 +647,23 @@ function InformeFinalModalContent({ student }) {
       {final?.observaciones && (
         <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
           <div className="flex items-center gap-2 mb-1">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 text-orange-600" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M12 8h.01M11 11h2v5h-2z" stroke="currentColor" strokeWidth="1.5" />
+            <svg
+              viewBox="0 0 24 24"
+              className="w-5 h-5 text-orange-600"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M12 8h.01M11 11h2v5h-2z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
             </svg>
             <span className="font-medium text-orange-800">Observaciones</span>
           </div>
@@ -571,7 +675,6 @@ function InformeFinalModalContent({ student }) {
     </div>
   );
 }
-
 
 /* ===========================
    Página Detalle con los 3 modales
@@ -586,7 +689,11 @@ const ConvalidacionDetail = () => {
   const [openInicial, setOpenInicial] = useState(false);
   const [openFinal, setOpenFinal] = useState(false);
 
+  const [solicitudes, setSolicitud] = useState(null);
+
   const [estadoEmpresa, setEstadoEmpresa] = useState("");
+  const [estadoInformeInicial, setEstadoInformeInicial] = useState("pendiente");
+  const [estadoInformeFinal, setEstadoInformeFinal] = useState("pendiente"); // Estado para el estado del informe final
 
   const estadoPill = useMemo(() => {
     if (estadoEmpresa === "aprobado")
@@ -598,35 +705,125 @@ const ConvalidacionDetail = () => {
     return <Badge>Sin estado</Badge>;
   }, [estadoEmpresa]);
 
-  const [solicitudes, setSolicitud] = useState(null);
-
   // dentro del componente ConvalidacionDetail
   useEffect(() => {
     if (!id) return;
 
-    console.log("[ConvalidacionDetail] Param id de la ruta:", id);
+    const fetchSolicitud = async () => {
+      try {
+        const ref = doc(db, "solicitudes_practicas", id); // Asegúrate de que la colección sea correcta
+        const docSnap = await getDoc(ref);
 
-    const ref = doc(db, "solicitudes_practicas", id); // OJO: nombre exacto de la colección
-    getDoc(ref)
-      .then((snap) => {
-        if (!snap.exists()) {
-          console.warn(
-            `[ConvalidacionDetail] No existe doc con id=${id} en 'solicitudes_practicas'`
-          );
-          return;
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setSolicitud(data);
+          setEstadoEmpresa(data?.empresa?.estado || ""); // Asignar el estado de la empresa
+          setEstadoInformeInicial(data?.informeInicial?.estado || "pendiente"); // Asignar el estado del informe inicial
+          setEstadoInformeFinal(data?.informeFinal?.estado || "pendiente"); // Asignar el estado del informe final
+        } else {
+          console.log("No se encontró la solicitud con ese ID");
         }
-        console.log("[ConvalidacionDetail] Documento leído:", {
-          id: snap.id,
-          data: snap.data(),
-        });
-        setSolicitud(snap.data()); // Almacenamos los datos en el estado
-        setEstadoEmpresa(snap.data()?.empresa?.estado || ""); // Asignar el estado de la empresa
-      })
-      .catch((err) => {
-        console.error("[ConvalidacionDetail] Error leyendo documento:", err);
-      });
-  }, [id]);
+      } catch (error) {
+        console.error("Error al cargar la solicitud:", error);
+      }
+    };
 
+    fetchSolicitud(); // Llamamos la función para cargar la solicitud
+  }, [id]); // Este efecto se ejecuta solo cuando el `id` cambia
+
+  //EMPRESA
+  const handleApprove = async () => {
+    try {
+      // Actualiza el estado de la empresa a "aprobado"
+      const empresaRef = doc(db, "solicitudes_practicas", id); // id es el ID de la solicitud
+      await updateDoc(empresaRef, {
+        "empresa.estado": "aprobado",
+      });
+
+      // Actualiza el estado localmente
+      setEstadoEmpresa("aprobado");
+      console.log("Empresa aprobada correctamente.");
+    } catch (error) {
+      console.error("Error al aprobar la empresa: ", error);
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      // Actualiza el estado de la empresa a "rechazado"
+      const empresaRef = doc(db, "solicitudes_practicas", id); // id es el ID de la solicitud
+      await updateDoc(empresaRef, {
+        "empresa.estado": "rechazado",
+      });
+
+      // Actualiza el estado localmente
+      setEstadoEmpresa("rechazado");
+      console.log("Empresa rechazada correctamente.");
+    } catch (error) {
+      console.error("Error al rechazar la empresa: ", error);
+    }
+  };
+
+  //INFORME INICIAL
+  const handleAccept = async () => {
+    try {
+      const ref = doc(db, "solicitudes_practicas", id); // Asegúrate de tener el ID de la solicitud
+      await updateDoc(ref, {
+        "informeInicial.estado": "aprobado",
+      });
+
+      // Actualiza el estado localmente
+      setEstadoInformeInicial("aprobado");
+      console.log("Informe Inicial aprobado");
+    } catch (error) {
+      console.error("Error al aprobar el informe inicial: ", error);
+    }
+  };
+
+  const handleRejectInformeInicial = async () => {
+    try {
+      const ref = doc(db, "solicitudes_practicas", id); // Asegúrate de tener el ID de la solicitud
+      await updateDoc(ref, {
+        "informeInicial.estado": "devuelto_con_observaciones",
+      });
+
+      // Actualiza el estado localmente
+      setEstadoInformeInicial("devuelto_con_observaciones");
+      console.log("Informe Inicial rechazado y devuelto con observaciones");
+    } catch (error) {
+      console.error("Error al rechazar el informe inicial: ", error);
+    }
+  };
+
+
+    const handleAcceptInformeFinal = async () => {
+    try {
+      const ref = doc(db, "solicitudes_practicas", id);
+      await updateDoc(ref, {
+        "informeFinal.estado": "aprobado",
+      });
+
+      setEstadoInformeFinal("aprobado"); // Actualiza el estado localmente
+      console.log("Informe Final aprobado");
+    } catch (error) {
+      console.error("Error al aprobar el informe final:", error);
+    }
+  };
+
+  // Función para manejar el clic en Rechazar Informe Final
+  const handleRejectInformeFinal = async () => {
+    try {
+      const ref = doc(db, "solicitudes_practicas", id);
+      await updateDoc(ref, {
+        "informeFinal.estado": "devuelto_con_observaciones",
+      });
+
+      setEstadoInformeFinal("devuelto_con_observaciones"); // Actualiza el estado localmente
+      console.log("Informe Final rechazado y devuelto con observaciones");
+    } catch (error) {
+      console.error("Error al rechazar el informe final:", error);
+    }
+  };
   return (
     <div className="p-6 space-y-6">
       <button
@@ -637,7 +834,7 @@ const ConvalidacionDetail = () => {
       </button>
 
       <div>
-        <h1 className="text-2xl font-bold">Detalle de la Solicitud {id}</h1>
+        <h1 className="text-2xl font-bold">Detalle de la Solicitud </h1>
         <p className="text-gray-700">
           Estudiante: {solicitud?.estudiante?.nombre || "No encontrado"}
         </p>
@@ -690,7 +887,6 @@ const ConvalidacionDetail = () => {
             >
               Ver
             </button>
-            {/* Muestra el estado con Badge */}
             {estadoEmpresa === "aprobado" && (
               <Badge tone="green">Aprobada</Badge>
             )}
@@ -701,61 +897,92 @@ const ConvalidacionDetail = () => {
               <Badge tone="red">Rechazada</Badge>
             )}
             {!estadoEmpresa && <Badge>Sin estado</Badge>}
+
+            {/* Botones de Aprobar y Rechazar cuando el estado es pendiente */}
+            {estadoEmpresa === "pendiente" && (
+              <div className="flex gap-2">
+                <button
+                  onClick={handleApprove}
+                  className="px-4 py-2 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
+                >
+                  Aprobar
+                </button>
+                <button
+                  onClick={handleReject}
+                  className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700"
+                >
+                  Rechazar
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-{/* Informe Inicial */}
-<div className="flex items-center justify-between p-4 border rounded-xl mb-4">
-  <div className="flex items-center gap-3">
-    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100">
-      <IconDoc />
-    </div>
-    <div>
-      <div className="font-semibold">Informe Inicial</div>
-      <div className="text-sm text-gray-700">
-        Fase 1: Validación de documentos y información
-      </div>
-      <div className="flex items-center gap-2 mt-1">
-        {/* Aquí capturamos el estado de informeInicial */}
-        {solicitudes?.informeInicial?.estado === "aprobado" ? (
-          <PillAprobado />
-        ) : (
-          <Badge>
-            {solicitudes?.informeInicial?.estado || "pendiente"}
-          </Badge>
-        )}
-        <span className="text-xs text-gray-500">
-          Solicitado:{" "}
-          {formatDateES(solicitudes?.informeInicial?.fechaInformeInicial)}
-        </span>
-      </div>
-    </div>
-  </div>
-  <div className="flex items-center gap-2">
-    {/* Botón de ver modal */}
-    <button
-      onClick={() => setOpenInicial(true)}
-      className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
-    >
-      Ver
-    </button>
+        {/* Informe Inicial */}
+        <div className="flex items-center justify-between p-4 border rounded-xl mb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100">
+              <IconDoc />
+            </div>
+            <div>
+              <div className="font-semibold">Informe Inicial</div>
+              <div className="text-sm text-gray-700">
+                Fase 1: Validación de documentos y información
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                {/* Aquí capturamos el estado de informeInicial */}
+                {estadoInformeInicial === "aprobado" ? (
+                  <PillAprobado />
+                ) : (
+                  <Badge>{estadoInformeInicial || "pendiente"}</Badge>
+                )}
+                <span className="text-xs text-gray-500">
+                  Solicitado:{" "}
+                  {formatDateES(
+                    solicitudes?.informeInicial?.fechaInformeInicial
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Botón de ver modal */}
+            <button
+              onClick={() => setOpenInicial(true)}
+              className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
+            >
+              Ver
+            </button>
+            {estadoInformeInicial === "aprobado" && (
+              <Badge tone="green">Aprobada</Badge>
+            )}
+            {estadoInformeInicial === "pendiente" && (
+              <Badge tone="yellow">Pendiente</Badge>
+            )}
+            {estadoInformeInicial === "devuelto_con_observaciones" && (
+              <Badge tone="red">Rechazada Con Observaciones</Badge>
+            )}
+            {!estadoInformeInicial && <Badge>Sin estado</Badge>}
 
-    {/* Botones de Aceptar/Rechazar */}
-    <button
-      disabled
-      className="px-3 py-1 text-sm rounded bg-gray-200 text-gray-500 cursor-not-allowed"
-    >
-      Aceptar
-    </button>
-    <button
-      disabled
-      className="px-3 py-1 text-sm rounded bg-gray-100 text-gray-400 border cursor-not-allowed"
-    >
-      Rechazar
-    </button>
-  </div>
-</div>
-
+            {estadoEmpresa === "aprobado" &&
+              estadoInformeInicial !== "aprobado" && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleAccept}
+                    className="px-4 py-2 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
+                  >
+                    Aceptar
+                  </button>
+                  <button
+                    onClick={handleRejectInformeInicial}
+                    className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700"
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              )}
+          </div>
+        </div>
 
         {/* Informe Final */}
         <div className="flex items-center justify-between p-4 border rounded-xl bg-gray-50">
@@ -807,7 +1034,9 @@ const ConvalidacionDetail = () => {
               onClick={() => setOpenFinal(true)}
               disabled={!solicitudes?.informeFinal}
               title={
-                solicitudes?.informeFinal ? "Ver" : "Informe Final no disponible"
+                solicitudes?.informeFinal
+                  ? "Ver"
+                  : "Informe Final no disponible"
               }
               className={`px-3 py-1 text-sm border rounded ${
                 solicitudes?.informeFinal
@@ -817,18 +1046,33 @@ const ConvalidacionDetail = () => {
             >
               Ver
             </button>
-            <button
-              disabled
-              className="px-3 py-1 text-sm rounded bg-gray-200 text-gray-500 cursor-not-allowed"
-            >
-              Aceptar
-            </button>
-            <button
-              disabled
-              className="px-3 py-1 text-sm rounded bg-gray-100 text-gray-400 border cursor-not-allowed"
-            >
-              Rechazar
-            </button>
+
+             {estadoInformeFinal === "aprobado" && (
+              <Badge tone="green">Aprobada</Badge>
+            )}
+            {estadoInformeFinal === "pendiente" && (
+              <Badge tone="yellow">Pendiente</Badge>
+            )}
+            {estadoInformeFinal === "devuelto_con_observaciones" && (
+              <Badge tone="red">Rechazada Con Observaciones</Badge>
+            )}
+
+                 {estadoEmpresa === "aprobado" && estadoInformeFinal !== "aprobado" && (
+            <div className="flex gap-2">
+              <button
+                onClick={handleAcceptInformeFinal}
+                className="px-4 py-2 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                Aceptar
+              </button>
+              <button
+                onClick={handleRejectInformeFinal}
+                className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700"
+              >
+                Rechazar
+              </button>
+            </div>
+          )}
           </div>
         </div>
       </div>
