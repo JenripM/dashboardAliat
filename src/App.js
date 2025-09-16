@@ -16,6 +16,7 @@ import AnunciosEventos from "./pages/AnunciosEventos";
 import Usuarios from "./pages/Usuarios";
 import Empresas from "./pages/Empresas";
 import Login from "./pages/Login";
+import EstudiantesDetail from "./pages/EstudiantesDetail";
 import Convalidacion from "./pages/Convalidacion";
 import ConvalidacionDetail from "./pages/ConvalidacionDetail";
 import Register from "./pages/Register";
@@ -59,14 +60,21 @@ function App() {
                       element={<DesempenoActual />}
                     />
                     <Route path="/estudiantes" element={<Estudiantes />} />
+                    <Route
+                      path="/estudiantes/:id"
+                      element={<EstudiantesDetail />}
+                    />
+
                     <Route path="/configuracion" element={<Configuracion />} />
                     <Route path="/ayuda" element={<Ayuda />} />
                     <Route path="/anuncios-eventos" element={<AnunciosEventos />} />
                     <Route path="/usuarios" element={<Usuarios />} />
                     <Route path="/empresas" element={<Empresas />} />
                     <Route path="/convalidacion" element={<Convalidacion />} />
-                            <Route path="/convalidacion/:id" element={<ConvalidacionDetail />} />
-
+                    <Route
+                      path="/convalidacion/:id"
+                      element={<ConvalidacionDetail />}
+                    />
                   </Routes>
                 </Layout>
               </PrivateRoute>

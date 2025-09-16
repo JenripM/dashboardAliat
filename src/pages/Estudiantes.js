@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { EyeIcon, ArrowDownTrayIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import ExportModal from '../components/ExportModal';
 import { getUsersData } from '../services/firebaseService';
+import { useNavigate } from 'react-router-dom';
 
 const Estudiantes = () => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -10,6 +11,7 @@ const Estudiantes = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Todos');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadEstudiantes = async () => {
@@ -274,11 +276,14 @@ const Estudiantes = () => {
                       {estudiante.estado}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button className="text-gray-400 hover:text-blue-600 transition-colors">
-                      <EyeIcon className="h-5 w-5" />
-                    </button>
-                  </td>
+                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <button
+              onClick={() => navigate(`/estudiantes/${estudiante.id}`)} // Navegar a la página de detalle
+              className="text-gray-400 hover:text-blue-600 transition-colors"
+            >
+              <EyeIcon className="h-5 w-5" />
+            </button>
+          </td>
                 </tr>
               ))}
             </tbody>

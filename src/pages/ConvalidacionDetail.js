@@ -716,6 +716,7 @@ const ConvalidacionDetail = () => {
 
         if (docSnap.exists()) {
           const data = docSnap.data();
+          console.log(data,"DATA");
           setSolicitud(data);
           setEstadoEmpresa(data?.empresa?.estado || ""); // Asignar el estado de la empresa
           setEstadoInformeInicial(data?.informeInicial?.estado || "pendiente"); // Asignar el estado del informe inicial

@@ -120,7 +120,9 @@ const Convalidacion = () => {
             id: doc.id,
             periodo: data.informeInicial?.periodo || "No especificado",
             estudiante: {
-              nombre: userInfo.displayName || "Nombre no disponible",
+              nombre: data.estudiante?.nombre,
+              email: data.estudiante?.email,
+
               codigo: data.estudiante?.codigoEstudiante || ""
             },
             empresa: data.empresa ? {
