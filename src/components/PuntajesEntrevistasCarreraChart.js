@@ -64,6 +64,10 @@ const PuntajesEntrevistasCarreraChart = () => {
     );
   }
 
+  // Gráfico temporalmente deshabilitado (solicitado por el usuario)
+  return null;
+
+  /*
   return (
     <div className="bg-white shadow rounded-lg p-6">
       <h2 className="text-lg font-medium text-gray-900">Puntaje promedio de entrevistas por carrera</h2>
@@ -152,6 +156,7 @@ const PuntajesEntrevistasCarreraChart = () => {
       </div>
     </div>
   );
+  */
 };
 
 export default PuntajesEntrevistasCarreraChart;

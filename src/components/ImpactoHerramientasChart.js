@@ -107,6 +107,10 @@ const ImpactoHerramientasChart = () => {
     );
   }
 
+  // Gráfico temporalmente deshabilitado (solicitado por el usuario)
+  return null;
+
+  /*
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
       <div className="mb-6">
@@ -137,6 +141,7 @@ const ImpactoHerramientasChart = () => {
       </div>
     </div>
   );
+  */
 };
 
 export default ImpactoHerramientasChart;

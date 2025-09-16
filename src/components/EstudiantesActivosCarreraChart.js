@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -14,6 +14,8 @@ const EstudiantesActivosCarreraChart = () => {
   const [carrerasData, setCarrerasData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [topN, setTopN] = useState(15);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -31,6 +33,27 @@ const EstudiantesActivosCarreraChart = () => {
 
     loadData();
   }, []);
+
+  // Ordenar y limitar + agregar "Otros" (suma de valores y promedio de porcentaje)
+  const displayedData = useMemo(() => {
+    if (!carrerasData || carrerasData.length === 0) return [];
+    const sorted = [...carrerasData].sort((a, b) => (b.value || 0) - (a.value || 0));
+    if (showAll) return sorted;
+
+    const limited = sorted.slice(0, topN);
+    const rest = sorted.slice(topN);
+    if (rest.length === 0) return limited;
+
+    const totalValue = rest.reduce((acc, item) => acc + (item.value || 0), 0);
+    const avgPercentage = rest.reduce((acc, item) => acc + (item.percentage || 0), 0) / rest.length;
+
+    const others = {
+      name: 'Otros',
+      value: totalValue,
+      percentage: avgPercentage,
+    };
+    return [...limited, others];
+  }, [carrerasData, showAll, topN]);
 
   // Mostrar loading
   if (loading) {
@@ -61,45 +84,71 @@ const EstudiantesActivosCarreraChart = () => {
 
   return (
     <div className="bg-white shadow rounded-lg p-6">
-      <h2 className="text-lg font-medium text-gray-900">Estudiantes Activos por Carrera</h2>
-      <p className="mt-1 text-sm text-gray-500">Carreras con más del 0.5% de estudiantes activos</p>
-      <div className="mt-6" style={{ height: `${Math.max(300, carrerasData.length * 40 + 100)}px` }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            layout="vertical"
-            data={carrerasData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-lg font-medium text-gray-900">Estudiantes Activos por Carrera</h2>
+          <p className="mt-1 text-sm text-gray-500">Carreras con más del 0.5% de estudiantes activos</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <select
+            value={topN}
+            onChange={(e) => setTopN(Number(e.target.value))}
+            className="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white"
+            disabled={showAll}
           >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis 
-              dataKey="name" 
-              type="category" 
-              width={200}
-              tick={{ fontSize: 12 }}
-              tickFormatter={(value) => {
-                // Truncar nombres largos y agregar ...
-                return value.length > 25 ? value.substring(0, 25) + '...' : value;
-              }}
-            />
-            <Tooltip 
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
-                      <p className="font-semibold text-gray-900">{data.name}</p>
-                      <p className="text-blue-600">Estudiantes: {data.value}</p>
-                      <p className="text-gray-600">Porcentaje: {data.percentage?.toFixed(1)}%</p>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Bar dataKey="value" fill="#028bbf" />
-          </BarChart>
-        </ResponsiveContainer>
+            <option value={10}>Top 10</option>
+            <option value={15}>Top 15</option>
+            <option value={20}>Top 20</option>
+            <option value={30}>Top 30</option>
+          </select>
+          <button
+            onClick={() => setShowAll((v) => !v)}
+            className="text-sm px-2 py-1 rounded-md border border-gray-300 hover:bg-gray-50"
+          >
+            {showAll ? 'Ver Top N' : 'Ver todos'}
+          </button>
+        </div>
+      </div>
+      <div className="mt-6" style={{ height: '520px' }}>
+        <div className="h-full overflow-y-auto">
+          <div style={{ height: '100%', minHeight: '100%' }}>
+            <ResponsiveContainer width="100%" height={Math.max(400, displayedData.length * 28)}>
+              <BarChart
+                layout="vertical"
+                data={displayedData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={220}
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => value.length > 30 ? value.substring(0, 30) + '…' : value}
+                />
+                <Tooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
+                          <p className="font-semibold text-gray-900">{data.name}</p>
+                          <p className="text-blue-600">Estudiantes: {data.value}</p>
+                          {typeof data.percentage === 'number' && (
+                            <p className="text-gray-600">Porcentaje: {data.percentage.toFixed(1)}%</p>
+                          )}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar dataKey="value" fill="#028bbf" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
     </div>
   );

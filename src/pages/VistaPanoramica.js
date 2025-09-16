@@ -14,11 +14,11 @@ import AreasOfInterestChart from '../components/AreasOfInterest';
 import EstudiantesActivosCicloChart from '../components/EstudiantesActivosCicloChart';
 import EstudiantesActivosCarreraChart from '../components/EstudiantesActivosCarreraChart';
 import PuntajesCVCarreraChart from '../components/PuntajesCVCarreraChart';
-import PuntajesEntrevistasCarreraChart from '../components/PuntajesEntrevistasCarreraChart';
+// import PuntajesEntrevistasCarreraChart from '../components/PuntajesEntrevistasCarreraChart';
 import MejoraEntrevistasChart from '../components/MejoraEntrevistasChart';
 import MejorPerformanceChart from '../components/MejorPerformanceChart';
 import PeorPerformanceChart from '../components/PeorPerformanceChart';
-import ImpactoHerramientasChart from '../components/ImpactoHerramientasChart';
+// import ImpactoHerramientasChart from '../components/ImpactoHerramientasChart';
 import MapaCalorPostulacionesChart from '../components/MapaCalorPostulacionesChart';
 import { getVistaPanoramicaMetrics } from '../services/crecimientoProfesionalService';
 
@@ -274,9 +274,6 @@ const VistaPanoramica = () => {
         {/* Puntajes Promedio CV por Carrera */}
         <PuntajesCVCarreraChart />
 
-        {/* Puntajes Promedio Entrevistas por Carrera */}
-        <PuntajesEntrevistasCarreraChart />
-
         {/* Mejora en Entrevistas */}
         <MejoraEntrevistasChart />
 
@@ -286,8 +283,8 @@ const VistaPanoramica = () => {
         {/* Estudiantes con peor performance */}
         <PeorPerformanceChart />
 
-        {/* Impacto de las Herramientas AI */}
-        <ImpactoHerramientasChart />
+        {/* Impacto de las Herramientas AI (temporalmente deshabilitado) */}
+        {/* <ImpactoHerramientasChart /> */}
 
         {/* Mapa de Calor: Postulaciones por Carrera */}
         <div className="lg:col-span-2">

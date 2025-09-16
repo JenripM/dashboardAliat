@@ -12,6 +12,7 @@ import {
   ClipboardDocumentListIcon,
   ChartBarIcon,
   ChartPieIcon,
+  MegaphoneIcon,
 } from '@heroicons/react/24/outline';
 
 const Layout = ({ children }) => {
@@ -55,7 +56,7 @@ const Layout = ({ children }) => {
       title: 'Cuenta',
       items: [
         { name: 'Configuración', href: '/configuracion', icon: Cog6ToothIcon },
-        { name: 'Ayuda', href: '/ayuda', icon: QuestionMarkCircleIcon },
+        { name: 'Anuncios y Eventos', href: '/anuncios-eventos', icon: MegaphoneIcon },
       ]
     },
     {

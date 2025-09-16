@@ -12,6 +12,7 @@ import DesempenoActual from "./pages/DesempenoActual";
 import Estudiantes from "./pages/Estudiantes";
 import Configuracion from "./pages/Configuracion";
 import Ayuda from "./pages/Ayuda";
+import AnunciosEventos from "./pages/AnunciosEventos";
 import Usuarios from "./pages/Usuarios";
 import Empresas from "./pages/Empresas";
 import Login from "./pages/Login";
@@ -60,6 +61,7 @@ function App() {
                     <Route path="/estudiantes" element={<Estudiantes />} />
                     <Route path="/configuracion" element={<Configuracion />} />
                     <Route path="/ayuda" element={<Ayuda />} />
+                    <Route path="/anuncios-eventos" element={<AnunciosEventos />} />
                     <Route path="/usuarios" element={<Usuarios />} />
                     <Route path="/empresas" element={<Empresas />} />
                     <Route path="/convalidacion" element={<Convalidacion />} />
