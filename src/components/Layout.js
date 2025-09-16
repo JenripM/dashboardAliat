@@ -83,7 +83,7 @@ const Layout = ({ children }) => {
           <div className="flex items-center h-16 px-6 border-b border-gray-200">
             <img src={MyWorkInLogo} alt="MyWorkIn Logo" className="h-8 w-auto" />
             <div className="ml-2 flex flex-col">
-              <span className="text-xs text-gray-500">UCAL-DASHBOARD</span>
+              <span className="text-xs text-gray-500">MYWORKIN-DASHBOARD</span>
               <span className="text-[10px] text-gray-400">v0.01</span>
             </div>
           </div>
