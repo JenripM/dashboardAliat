@@ -190,7 +190,7 @@ const EstudiantesDetail = () => {
 
 {aiToolData && aiToolData.length > 0 && (
   <div className="mt-6">
-    <h2 className="text-xl font-semibold text-gray-800 mb-4">Análisis de CV (aiTool_cvAnalysis)</h2>
+    <h2 className="text-xl font-semibold text-gray-800 mb-4">Análisis de CV </h2>
     <table className="min-w-full table-auto mt-4 border-collapse rounded-lg shadow-md overflow-hidden bg-white text-sm">
       <thead>
         <tr className="bg-gray-100 text-gray-700">
@@ -235,7 +235,7 @@ const EstudiantesDetail = () => {
 )}
 {aiToolInterviewData && aiToolInterviewData.length > 0 && (
   <div className="mt-6">
-    <h2 className="text-xl font-semibold text-gray-800 mb-4">Simulación de Entrevista (aiTool_interviewSimulation)</h2>
+    <h2 className="text-xl font-semibold text-gray-800 mb-4">Simulación de Entrevista </h2>
     <table className="min-w-full table-auto mt-4 border-collapse rounded-lg shadow-md overflow-hidden bg-white text-sm">
       <thead>
         <tr className="bg-gray-100 text-gray-700">
