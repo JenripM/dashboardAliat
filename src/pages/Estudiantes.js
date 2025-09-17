@@ -1,51 +1,98 @@
-import { useState, useEffect } from 'react';
-import { EyeIcon, ArrowDownTrayIcon, CalendarIcon } from '@heroicons/react/24/outline';
-import ExportModal from '../components/ExportModal';
-import { getUsersData } from '../services/firebaseService';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import {
+  EyeIcon,
+  ArrowDownTrayIcon,
+  CalendarIcon,
+} from "@heroicons/react/24/outline";
+import ExportModal from "../components/ExportModal";
+import { getUsersData, getCvAnalysisData, getInterviewSimulationData } from "../services/firebaseService";
+import { useNavigate } from "react-router-dom";
 
 const Estudiantes = () => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [estudiantes, setEstudiantes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('Todos');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Todos");
   const navigate = useNavigate();
-
 useEffect(() => {
   const loadEstudiantes = async () => {
     try {
       setLoading(true);
-      const usersData = await getUsersData();
-      
-      // Procesar datos de usuarios con validación defensiva
+
+      // Cargar users + colecciones AI en paralelo
+      const [usersData, cvAnalysisDocs, interviewSimDocs] = await Promise.all([
+        getUsersData(),
+        getCvAnalysisData(),
+        getInterviewSimulationData(),
+      ]);
+
+      // Sets para joins por userId
+      const userIdsWithCvAnalysis = new Set(
+        cvAnalysisDocs
+          .map((d) => d?.userId)
+          .filter((id) => typeof id === "string" && id.trim() !== "")
+      );
+
+      const userIdsWithInterviewSim = new Set(
+        interviewSimDocs
+          .map((d) => d?.userId)
+          .filter((id) => typeof id === "string" && id.trim() !== "")
+      );
+
       const estudiantesData = usersData.map((user, index) => {
-        const nombre = user?.displayName || 'No especificado';
-        const carrera = user?.career || 'No especificado';
-        const telefono = user?.phone || 'No especificado';
-        const email = user?.email || 'No especificado';
-        const ciclo = user?.cycle || 'No especificado';
-        const estado = user?.status === 'active' ? 'Activo' : 
-                      user?.status === 'inactive' ? 'Inactivo' : 'No especificado';
-        
-        // Procesar fecha de creación
-        let fecha = 'No especificado';
-        if (user?.createdAt) {
-          if (user.createdAt.toDate && typeof user.createdAt.toDate === 'function') {
-            // Firestore Timestamp
-            fecha = user.createdAt.toDate().toLocaleDateString('es-ES');
-          } else if (user.createdAt instanceof Date) {
-            // Date object
-            fecha = user.createdAt.toLocaleDateString('es-ES');
-          } else if (typeof user.createdAt === 'string') {
-            // String date
-            fecha = new Date(user.createdAt).toLocaleDateString('es-ES');
+        const nombre = user?.displayName || "No especificado";
+        const carrera = user?.career || "No especificado";
+        const telefono = user?.phone || "No especificado";
+        const email = user?.email || "No especificado";
+        const ciclo = user?.cycle || "No especificado";
+        const estado =
+          user?.status === "active"
+            ? "Activo"
+            : user?.status === "inactive"
+            ? "Inactivo"
+            : "No especificado";
+
+        // CV file
+        const cvFileUrl = user?.cvFileUrl ?? "";
+        const hasCV = typeof cvFileUrl === "string" && cvFileUrl.trim() !== "";
+
+        // createdAtMs y fecha legible
+        let createdAtMs = 0;
+        let fecha = "No especificado";
+        const createdAt = user?.createdAt;
+
+        if (createdAt) {
+          if (createdAt?.toDate && typeof createdAt.toDate === "function") {
+            const d = createdAt.toDate();
+            createdAtMs = d.getTime();
+            fecha = d.toLocaleDateString("es-ES");
+          } else if (createdAt instanceof Date) {
+            createdAtMs = createdAt.getTime();
+            fecha = createdAt.toLocaleDateString("es-ES");
+          } else if (typeof createdAt === "string") {
+            const d = new Date(createdAt);
+            if (!isNaN(d.getTime())) {
+              createdAtMs = d.getTime();
+              fecha = d.toLocaleDateString("es-ES");
+            }
           }
         }
-        
+
+        // ID consistente para el join
+        const userIdForJoin = user?.id || user?.uid || "";
+
+        const hasCvAnalysis =
+          typeof userIdForJoin === "string" &&
+          userIdsWithCvAnalysis.has(userIdForJoin);
+
+        const hasInterviewSim =
+          typeof userIdForJoin === "string" &&
+          userIdsWithInterviewSim.has(userIdForJoin);
+
         return {
-          id: user?.id || index + 1,
+          id: user?.id || user?.uid || index + 1,
           nombre,
           carrera,
           telefono,
@@ -53,20 +100,39 @@ useEffect(() => {
           ciclo,
           fecha,
           estado,
-          createdAt: user?.createdAt // Guarda el valor original de la fecha para ordenar
+          createdAt,
+          createdAtMs,
+          cvFileUrl,
+          hasCV,
+          hasCvAnalysis,
+          hasInterviewSim,
         };
       });
 
-      // Ordenar estudiantes por la fecha de creación (más reciente primero)
+      // ORDEN: ambos > cvAnalysis > interviewSim > CV > fecha
       estudiantesData.sort((a, b) => {
-        const dateA = new Date(a.createdAt);
-        const dateB = new Date(b.createdAt);
-        return dateB - dateA; // Ordena de la más reciente a la más antigua
+        const aBoth = a.hasCvAnalysis && a.hasInterviewSim ? 1 : 0;
+        const bBoth = b.hasCvAnalysis && b.hasInterviewSim ? 1 : 0;
+        if (bBoth - aBoth !== 0) return bBoth - aBoth;
+
+        const aCv = a.hasCvAnalysis ? 1 : 0;
+        const bCv = b.hasCvAnalysis ? 1 : 0;
+        if (bCv - aCv !== 0) return bCv - aCv;
+
+        const aInt = a.hasInterviewSim ? 1 : 0;
+        const bInt = b.hasInterviewSim ? 1 : 0;
+        if (bInt - aInt !== 0) return bInt - aInt;
+
+        const aHas = a.hasCV ? 1 : 0;
+        const bHas = b.hasCV ? 1 : 0;
+        if (bHas - aHas !== 0) return bHas - aHas;
+
+        return (b.createdAtMs || 0) - (a.createdAtMs || 0);
       });
 
       setEstudiantes(estudiantesData);
     } catch (err) {
-      console.error('Error cargando estudiantes:', err);
+      console.error("Error cargando estudiantes:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -78,20 +144,22 @@ useEffect(() => {
 
   const handleExport = (selectedFields) => {
     // Here you would implement the CSV export logic
-    console.log('Exporting with fields:', selectedFields);
+    console.log("Exporting with fields:", selectedFields);
     setIsExportModalOpen(false);
   };
 
   // Filtrar estudiantes basado en búsqueda y estado
-  const filteredEstudiantes = estudiantes.filter(estudiante => {
-    const matchesSearch = estudiante.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         estudiante.carrera.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         estudiante.ciclo.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'Todos' || 
-                         (statusFilter === 'Activos' && estudiante.estado === 'Activo') ||
-                         (statusFilter === 'Inactivos' && estudiante.estado === 'Inactivo');
-    
+  const filteredEstudiantes = estudiantes.filter((estudiante) => {
+    const matchesSearch =
+      estudiante.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      estudiante.carrera.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      estudiante.ciclo.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "Todos" ||
+      (statusFilter === "Activos" && estudiante.estado === "Activo") ||
+      (statusFilter === "Inactivos" && estudiante.estado === "Inactivo");
+
     return matchesSearch && matchesStatus;
   });
 
@@ -101,9 +169,12 @@ useEffect(() => {
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Estudiantes</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Estudiantes
+            </h1>
             <p className="mt-2 text-sm text-gray-600">
-              Visualiza el progreso y métricas de empleabilidad de tus estudiantes
+              Visualiza el progreso y métricas de empleabilidad de tus
+              estudiantes
             </p>
           </div>
         </div>
@@ -123,21 +194,34 @@ useEffect(() => {
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Estudiantes</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Estudiantes
+            </h1>
             <p className="mt-2 text-sm text-gray-600">
-              Visualiza el progreso y métricas de empleabilidad de tus estudiantes
+              Visualiza el progreso y métricas de empleabilidad de tus
+              estudiantes
             </p>
           </div>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              <svg
+                className="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error al cargar estudiantes</h3>
+              <h3 className="text-sm font-medium text-red-800">
+                Error al cargar estudiantes
+              </h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>{error}</p>
               </div>
@@ -179,13 +263,11 @@ useEffect(() => {
               <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
               Exportar seleccionadas
             </button>
-            <button
-              className="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
+            <button className="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               <CalendarIcon className="h-5 w-5 mr-2" />
               Seleccionar fechas
             </button>
-            <select 
+            <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
@@ -241,24 +323,33 @@ useEffect(() => {
                     {estudiante.ciclo}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {estudiante.telefono !== 'No especificado' ? (
+                    {estudiante.telefono !== "No especificado" ? (
                       <a
-                        href={`https://wa.me/${estudiante.telefono.replace('+', '')}`}
+                        href={`https://wa.me/${estudiante.telefono.replace(
+                          "+",
+                          ""
+                        )}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center text-gray-600 hover:text-green-600"
                       >
                         {estudiante.telefono}
-                        <svg className="w-4 h-4 ml-1 text-green-500" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 001.333 4.993L2 22l5.233-1.237a9.994 9.994 0 004.779 1.217h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.669-1.037-5.176-2.922-7.062A9.935 9.935 0 0012.012 2zm-3.706 8.416a.557.557 0 01-.089-.003c-.398-.083-1.037-.383-1.553-.899-.516-.516-.816-1.155-.899-1.553a.567.567 0 01.564-.683c.398 0 .815.166 1.053.404.238.238.404.655.404 1.053 0 .311-.251.562-.562.562h-.006a.557.557 0 01.088.119zm6.406 6.406c-.311 0-.562-.251-.562-.562 0-.398.166-.815.404-1.053.238-.238.655-.404 1.053-.404.311 0 .562.251.562.562 0 .398-.166.815-.404 1.053-.238.238-.655.404-1.053.404zm3.294-3.294c-.083.398-.383 1.037-.899 1.553-.516.516-1.155.816-1.553.899a.567.567 0 01-.683-.564c0-.398.166-.815.404-1.053.238-.238.655-.404 1.053-.404.311 0 .562.251.562.562v.006a.557.557 0 01.116.001z"/>
+                        <svg
+                          className="w-4 h-4 ml-1 text-green-500"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 001.333 4.993L2 22l5.233-1.237a9.994 9.994 0 004.779 1.217h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.669-1.037-5.176-2.922-7.062A9.935 9.935 0 0012.012 2zm-3.706 8.416a.557.557 0 01-.089-.003c-.398-.083-1.037-.383-1.553-.899-.516-.516-.816-1.155-.899-1.553a.567.567 0 01.564-.683c.398 0 .815.166 1.053.404.238.238.404.655.404 1.053 0 .311-.251.562-.562.562h-.006a.557.557 0 01.088.119zm6.406 6.406c-.311 0-.562-.251-.562-.562 0-.398.166-.815.404-1.053.238-.238.655-.404 1.053-.404.311 0 .562.251.562.562 0 .398-.166.815-.404 1.053-.238.238-.655.404-1.053.404zm3.294-3.294c-.083.398-.383 1.037-.899 1.553-.516.516-1.155.816-1.553.899a.567.567 0 01-.683-.564c0-.398.166-.815.404-1.053.238-.238.655-.404 1.053-.404.311 0 .562.251.562.562v.006a.557.557 0 01.116.001z" />
                         </svg>
                       </a>
                     ) : (
-                      <span className="text-gray-400">{estudiante.telefono}</span>
+                      <span className="text-gray-400">
+                        {estudiante.telefono}
+                      </span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {estudiante.email !== 'No especificado' ? (
+                    {estudiante.email !== "No especificado" ? (
                       <a
                         href={`mailto:${estudiante.email}`}
                         className="text-blue-600 hover:text-blue-800"
@@ -273,24 +364,26 @@ useEffect(() => {
                     {estudiante.fecha}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      estudiante.estado === 'Activo' 
-                        ? 'bg-green-100 text-green-800' 
-                        : estudiante.estado === 'Inactivo'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span
+                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        estudiante.estado === "Activo"
+                          ? "bg-green-100 text-green-800"
+                          : estudiante.estado === "Inactivo"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {estudiante.estado}
                     </span>
                   </td>
-                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            <button
-              onClick={() => navigate(`/estudiantes/${estudiante.id}`)} // Navegar a la página de detalle
-              className="text-gray-400 hover:text-blue-600 transition-colors"
-            >
-              <EyeIcon className="h-5 w-5" />
-            </button>
-          </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <button
+                      onClick={() => navigate(`/estudiantes/${estudiante.id}`)} // Navegar a la página de detalle
+                      className="text-gray-400 hover:text-blue-600 transition-colors"
+                    >
+                      <EyeIcon className="h-5 w-5" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -310,8 +403,12 @@ useEffect(() => {
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-700">
-                Mostrando <span className="font-medium">{filteredEstudiantes.length}</span> de{' '}
-                <span className="font-medium">{estudiantes.length}</span> estudiantes
+                Mostrando{" "}
+                <span className="font-medium">
+                  {filteredEstudiantes.length}
+                </span>{" "}
+                de <span className="font-medium">{estudiantes.length}</span>{" "}
+                estudiantes
                 {searchTerm && (
                   <span className="ml-2 text-gray-500">
                     (filtrados por "{searchTerm}")
@@ -320,7 +417,10 @@ useEffect(() => {
               </p>
             </div>
             <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <nav
+                className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                aria-label="Pagination"
+              >
                 <button className="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                   Anterior
                 </button>
@@ -342,4 +442,4 @@ useEffect(() => {
   );
 };
 
-export default Estudiantes; 
+export default Estudiantes;

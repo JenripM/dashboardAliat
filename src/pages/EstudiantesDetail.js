@@ -313,17 +313,24 @@ const EstudiantesDetail = () => {
                               <td className="px-6 py-4 text-gray-700 border-b">
                                 {question.text}
                               </td>
-                              <td className="px-6 py-4 text-gray-700 border-b">
-                                <a
-                                  href={question.answer.recording_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:underline"
-                                >
-                                  Escuchar respuesta
-                                </a>
-                                <p>{question.transcript}</p>
-                              </td>
+<td className="px-6 py-4 text-gray-700 border-b">
+  {question?.answer?.recording_url ? (
+    <a
+      href={question.answer.recording_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-500 hover:underline"
+    >
+      Escuchar respuesta
+    </a>
+  ) : (
+    <span className="text-gray-400 italic">Sin grabación</span>
+  )}
+
+  {question?.transcript && (
+    <p className="mt-1">{question.transcript}</p>
+  )}
+</td>
 
                               <td className="px-6 py-4 text-gray-700 border-b">
                                 {item.interviewScore}
