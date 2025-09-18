@@ -52,16 +52,19 @@ const MejoraEntrevistasChart = () => {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-semibold text-gray-800">
-            {`Simulación ${label}`}
+            {`Simulación #${label}`}
           </p>
           <p className="text-blue-600">
             <span className="font-medium">Score promedio:</span> {data.averageScore}
           </p>
           <p className="text-gray-600 text-sm">
-            <span className="font-medium">Usuarios:</span> {data.count}
+            <span className="font-medium">Usuarios con ≥{label} simulaciones:</span> {data.count}
           </p>
           <p className="text-gray-600 text-sm">
-            <span className="font-medium">Rango:</span> {data.minScore} - {data.maxScore}
+            <span className="font-medium">Rango de scores:</span> {data.minScore} - {data.maxScore}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            *Cada usuario contribuye a todos los puntos hasta su última simulación
           </p>
         </div>
       );
@@ -123,7 +126,7 @@ const MejoraEntrevistasChart = () => {
           Tendencia de mejora
         </h3>
         <p className="text-sm text-gray-600">
-          Score promedio por número de simulación de entrevistas
+          Score promedio por número de simulación de entrevistas (evolución completa de usuarios)
         </p>
         <div className="flex gap-4 mt-2 text-xs text-gray-500">
           <span>Total simulaciones: {stats.totalSimulations}</span>
