@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PlusIcon, MegaphoneIcon, CalendarDaysIcon, EyeIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import CreateAnnouncementEventModal from '../components/CreateAnnouncementEventModal';
 
 const AnunciosEventos = () => {
   const [items, setItems] = useState([
@@ -35,6 +36,8 @@ const AnunciosEventos = () => {
     },
   ]);
 
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
   const stats = [
     { name: 'Anuncios Activos', value: items.filter(i => i.tipo === 'Anuncio').length, icon: MegaphoneIcon },
     { name: 'Eventos Próximos', value: items.filter(i => i.tipo === 'Evento').length, icon: CalendarDaysIcon },
@@ -42,20 +45,9 @@ const AnunciosEventos = () => {
     { name: 'Total Asistentes', value: items.reduce((a, i) => a + (i.asistentes || 0), 0), icon: UserGroupIcon },
   ];
 
-  const handleCreate = () => {
-    // Placeholder para crear (data fake)
-    const nuevo = {
-      id: String(Date.now()),
-      titulo: 'Nuevo Anuncio',
-      tipo: 'Anuncio',
-      publico: 'General',
-      fechaPublicacion: new Date().toISOString().slice(0, 10),
-      fechaEvento: null,
-      visualizaciones: 0,
-      asistentes: 0,
-    };
-    setItems(prev => [nuevo, ...prev]);
-  };
+  // Apertura/cierre del modal de creación (solo UI)
+  const openCreateModal = () => setIsCreateOpen(true);
+  const closeCreateModal = () => setIsCreateOpen(false);
 
   const handleDelete = (id, titulo) => {
     if (!window.confirm(`¿Eliminar "${titulo}"?`)) return;
@@ -77,7 +69,7 @@ const AnunciosEventos = () => {
           <p className="mt-1 text-sm text-gray-500">Gestiona comunicaciones y eventos para estudiantes</p>
         </div>
         <button
-          onClick={handleCreate}
+          onClick={openCreateModal}
           className="inline-flex items-center px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
         >
           <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
@@ -151,6 +143,7 @@ const AnunciosEventos = () => {
           </tbody>
         </table>
       </div>
+      <CreateAnnouncementEventModal isOpen={isCreateOpen} onClose={closeCreateModal} />
     </div>
   );
 };

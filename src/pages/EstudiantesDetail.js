@@ -18,6 +18,7 @@ import {
   ArrowDownTrayIcon,
   DownloadIcon,
 } from "@heroicons/react/24/outline";
+import EmailStudentModal from "../components/EmailStudentModal";
 
 const EstudiantesDetail = () => {
   const { id } = useParams();
@@ -29,6 +30,7 @@ const EstudiantesDetail = () => {
   const [error, setError] = useState(null);
   const [aiToolData, setAiToolData] = useState(null); // Nuevo estado para la información de aiTool_cvAnalysis
   const [aiToolInterviewData, setAiToolInterviewData] = useState(null); // Nuevo estado para la información de aiTool_interviewSimulation
+  const [isEmailOpen, setIsEmailOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -193,6 +195,16 @@ const EstudiantesDetail = () => {
                     >
                       {/* O usa un ícono si tienes librería de íconos */}
                       Ver CV
+                    </button>
+                  )}
+
+                  {/* Botón Correo */}
+                  {userData?.email && (
+                    <button
+                      onClick={() => setIsEmailOpen(true)}
+                      className="flex items-center text-white bg-black hover:bg-gray-800 px-4 py-2 rounded-md"
+                    >
+                      Correo
                     </button>
                   )}
 
@@ -503,6 +515,7 @@ const EstudiantesDetail = () => {
           </div>
         </div>
       </div>
+      <EmailStudentModal isOpen={isEmailOpen} onClose={() => setIsEmailOpen(false)} toEmail={userData?.email || ''} />
     </div>
   );
 };
