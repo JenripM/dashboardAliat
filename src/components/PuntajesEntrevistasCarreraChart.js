@@ -37,7 +37,6 @@ const PuntajesEntrevistasCarreraChart = () => {
     loadData();
   }, []);
 
-  // Mostrar loading
   if (loading) {
     return (
       <div className="bg-white shadow rounded-lg p-6">
@@ -52,7 +51,6 @@ const PuntajesEntrevistasCarreraChart = () => {
     );
   }
 
-  // Mostrar error
   if (error) {
     return (
       <div className="bg-white shadow rounded-lg p-6">
@@ -64,20 +62,18 @@ const PuntajesEntrevistasCarreraChart = () => {
     );
   }
 
-  // Gráfico temporalmente deshabilitado (solicitado por el usuario)
-  return null;
-
-  /*
   return (
     <div className="bg-white shadow rounded-lg p-6">
       <h2 className="text-lg font-medium text-gray-900">Puntaje promedio de entrevistas por carrera</h2>
       <p className="mt-1 text-sm text-gray-500">Rendimiento promedio en entrevistas simuladas por carrera</p>
-      <div className="mt-6" style={{ height: `${Math.max(300, puntajeEntrevistas.length * 60 + 150)}px` }}>
+      {/* MODIFICACIÓN: Aumento de la altura mínima y el espacio por barra */}
+      <div className="mt-6" style={{ height: `${Math.max(500, puntajeEntrevistas.length * 80 + 150)}px` }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={puntajeEntrevistas}
             margin={{ top: 20, right: 40, left: 40, bottom: 120 }}
-            barSize={Math.max(30, Math.min(60, 400 / puntajeEntrevistas.length))}
+            // MODIFICACIÓN: Barras más gruesas para mejor visibilidad
+            barSize={Math.max(50, Math.min(100, 400 / puntajeEntrevistas.length))}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
@@ -87,10 +83,9 @@ const PuntajesEntrevistasCarreraChart = () => {
               textAnchor="middle"
               tick={(props) => {
                 const { x, y, payload } = props;
-                const maxLength = 20; // Longitud máxima por línea
+                const maxLength = 20;
                 const careerName = payload.value;
                 
-                // Dividir el nombre en líneas si es muy largo
                 const lines = [];
                 if (careerName.length > maxLength) {
                   const words = careerName.split(' ');
@@ -156,7 +151,6 @@ const PuntajesEntrevistasCarreraChart = () => {
       </div>
     </div>
   );
-  */
 };
 
 export default PuntajesEntrevistasCarreraChart;

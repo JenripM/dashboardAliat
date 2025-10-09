@@ -41,7 +41,10 @@ const Layout = ({ children }) => {
       title: 'Análisis',
       items: [
         { name: 'Competitividad en el Mercado', href: '/competitividad-mercado', icon: ChartBarIcon },
-        { name: 'Crecimiento Profesional', href: '/crecimiento-profesional', icon: ChartPieIcon },
+       
+        //{ name: 'Crecimiento Profesional', href: '/crecimiento-profesional', icon: ChartPieIcon },
+
+
         { name: 'Desempeño Actual', href: '/desempeno-actual', icon: ClipboardDocumentListIcon },
       ]
     },

@@ -176,10 +176,10 @@ const VistaPanoramica = () => {
       description: 'estudiantes con trabajo'
     },
     {
-      name: 'Entrevistas Conseguidas',
+      name: 'Perfiles Linkedin Revisados',
       value: metrics.interviewsObtained.toString(),
       icon: BriefcaseIcon,
-      change: '+18.5%', // Esta métrica no tiene cambio temporal directo
+      change: '10', // Esta métrica no tiene cambio temporal directo
       changeType: 'increase',
       description: 'estudiantes con entrevistas'
     },
@@ -264,12 +264,12 @@ const VistaPanoramica = () => {
 
       {/* Gráficos principales */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        {/* Estudiantes Activos por Carrera */}
-        <EstudiantesActivosCarreraChart />
+        {/* Estudiantes Activos por Carrera 
+        <EstudiantesActivosCarreraChart />*/}
 
-        {/* Estudiantes Activos por Ciclo */}
+        {/* Estudiantes Activos por Ciclo 
         <EstudiantesActivosCicloChart />
-
+*/}
 
         {/* Puntajes Promedio CV por Carrera */}
         <PuntajesCVCarreraChart />

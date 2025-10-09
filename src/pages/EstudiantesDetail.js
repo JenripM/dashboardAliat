@@ -406,7 +406,7 @@ const EstudiantesDetail = () => {
                 </div>
               )}
 
-            {/* Experiencia Laboral */}
+            {/* Experiencia Laboral 
             {cvData?.data?.workExperience &&
               Array.isArray(cvData.data.workExperience) &&
               cvData.data.workExperience.length > 0 && (
@@ -467,9 +467,9 @@ const EstudiantesDetail = () => {
                     </tbody>
                   </table>
                 </div>
-              )}
+              )}*/}
 
-            {/* Habilidades */}
+            {/* Habilidades
             {cvData?.data?.skills &&
               Array.isArray(cvData.data.skills) &&
               cvData.data.skills.length > 0 && (
@@ -511,7 +511,7 @@ const EstudiantesDetail = () => {
                     </tbody>
                   </table>
                 </div>
-              )}
+              )} */}
           </div>
         </div>
       </div>

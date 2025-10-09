@@ -48,10 +48,10 @@ useEffect(() => {
         const email = user?.email || "No especificado";
         const ciclo = user?.cycle || "No especificado";
         const estado =
-          user?.status === "active"
-            ? "Activo"
-            : user?.status === "inactive"
-            ? "Inactivo"
+          user?.studentStatus === "Egresado"
+            ? "Egresado"
+            : user?.studentStatus === "Estudiante"
+            ? "Estudiante"
             : "No especificado";
 
         // CV file
@@ -157,8 +157,8 @@ useEffect(() => {
 
     const matchesStatus =
       statusFilter === "Todos" ||
-      (statusFilter === "Activos" && estudiante.estado === "Activo") ||
-      (statusFilter === "Inactivos" && estudiante.estado === "Inactivo");
+      (statusFilter === "Egresado" && estudiante.estado === "Egresado") ||
+      (statusFilter === "Estudiante" && estudiante.estado === "Estudiante");
 
     return matchesSearch && matchesStatus;
   });
@@ -273,8 +273,8 @@ useEffect(() => {
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
               <option>Todos</option>
-              <option>Activos</option>
-              <option>Inactivos</option>
+              <option>Egresado</option>
+              <option>Estudiante</option>
             </select>
           </div>
         </div>
@@ -300,10 +300,10 @@ useEffect(() => {
                   Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fecha
+                  Fecha De Registro
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
+                  Tipo
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
@@ -364,17 +364,8 @@ useEffect(() => {
                     {estudiante.fecha}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        estudiante.estado === "Activo"
-                          ? "bg-green-100 text-green-800"
-                          : estudiante.estado === "Inactivo"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
+                  
                       {estudiante.estado}
-                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button

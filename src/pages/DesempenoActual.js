@@ -221,16 +221,17 @@ const DesempenoActual = () => {
         <PuntajesCVCarreraChart />
 
         {/* Puntajes Entrevistas por Carrera */}
+        
         <PuntajesEntrevistasCarreraChart />
       </div>
 
       {/* Estudiantes Activos */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        {/* Estudiantes Activos por Ciclo */}
-        <EstudiantesActivosCicloChart />
+        {/* Estudiantes Activos por Ciclo 
+        <EstudiantesActivosCicloChart />*/}
 
-        {/* Estudiantes Activos por Carrera */}
-        <EstudiantesActivosCarreraChart />
+        {/* Estudiantes Activos por Carrera 
+        <EstudiantesActivosCarreraChart />*/}
       </div>
     </div>
   );

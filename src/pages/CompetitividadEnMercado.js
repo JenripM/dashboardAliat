@@ -217,11 +217,11 @@ const CompetitividadEnMercado = () => {
       {/* Áreas de Interés */}
       <AreasOfInterestChart />
 
-      {/* Dificultad por Área de Estudio */}
-      <EstudiantesPorOfertaChart />
+      {/* Dificultad por Área de Estudio 
+      <EstudiantesPorOfertaChart />*/}
 
-      {/* Mapa de Calor: Postulaciones por Carrera */}
-      <MapaCalorPostulacionesChart />
+      {/* Mapa de Calor: Postulaciones por Carrera 
+      <MapaCalorPostulacionesChart />*/}
     </div>
   );
 };
