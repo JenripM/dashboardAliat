@@ -176,13 +176,14 @@ const VistaPanoramica = () => {
       description: 'estudiantes con trabajo'
     },
     {
-      name: 'Perfiles Linkedin Revisados',
-      value: metrics.interviewsObtained.toString(),
-      icon: BriefcaseIcon,
-      change: '10', // Esta métrica no tiene cambio temporal directo
-      changeType: 'increase',
-      description: 'estudiantes con entrevistas'
-    },
+    name: 'Perfiles Linkedin Revisados',
+    value: metrics.totalLinkedinAnalyze?.toString() || '0',
+    icon: BriefcaseIcon,
+    change: '+10%', // Si luego calculas cambio real, lo reemplazas
+    changeType: 'increase',
+    description: 'perfiles analizados con IA'
+  },
+
   ];
 
 

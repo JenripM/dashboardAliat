@@ -7,7 +7,8 @@ import {
   getCvAnalysisData,
   getCvAdaptationData,
   getUsersData,
-  getUserCVsCount
+  getUserCVsCount,
+  getLinkedinAnalyzeCount
 } from './firebaseService';
 import { 
   analyzeToolUsage
@@ -186,11 +187,13 @@ export const getVistaPanoramicaMetrics = async (timeRange = '30D') => {
     console.log('🌐 Iniciando carga de métricas de vista panorámica...');
     
     // Obtener datos necesarios para cálculos específicos
-    const [applicationData, userCVsCount] = await Promise.all([
-      getApplicationTrackingData(),
-      getUserCVsCount()
-    ]);
-    
+  const [applicationData, userCVsCount, linkedinCount] = await Promise.all([
+    getApplicationTrackingData(),
+    getUserCVsCount(),
+    getLinkedinAnalyzeCount()
+  ]);
+
+      
     // Obtener métricas de crecimiento profesional (ya con caché)
     const crecimientoMetrics = await getCrecimientoProfesionalMetrics(timeRange);
     
@@ -220,6 +223,8 @@ export const getVistaPanoramicaMetrics = async (timeRange = '30D') => {
       totalCvAnalysis: crecimientoMetrics.totalCvAnalysis,
       totalCvAdaptation: crecimientoMetrics.totalCvAdaptation,
       totalUserCVs: userCVsCount,
+        totalLinkedinAnalyze: linkedinCount,
+
       jobsObtained,
       interviewsObtained,
       

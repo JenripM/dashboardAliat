@@ -183,6 +183,20 @@ export const verifyFirebaseConnection = async () => {
   }
 };
 
+
+/**
+ * Obtiene el conteo de registros en la colección aiTool_linkedinAnalyze
+ */
+export const getLinkedinAnalyzeCount = async () => {
+  try {
+    return await getCollectionCount('aiTool_linkedinAnalyze');
+  } catch (error) {
+    console.error('❌ Error obteniendo conteo de aiTool_linkedinAnalyze:', error.message);
+    return 0;
+  }
+};
+
+
 // Función para obtener datos con filtros específicos
 export const getFilteredCollectionData = async (collectionName, filters = {}) => {
   try {

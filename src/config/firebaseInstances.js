@@ -6,7 +6,7 @@ import { getAuth } from 'firebase/auth';
 // Credenciales de los 3 proyectos
 import dashboardCredentials from '../credentials/firebase_dashboard_credentials.json';
 import jobsCredentials from '../credentials/firebase_jobs_credentials.json';
-import usersCredentials from '../credentials/firebase_users_credentials.json';
+import usersCredentials from '../credentials/firebase_credentials_ucal.json';
 
 // Instancia para Dashboard (login/auth de administradores)
 const dashboardApp = initializeApp(dashboardCredentials, 'dashboard');
