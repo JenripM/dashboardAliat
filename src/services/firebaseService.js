@@ -70,7 +70,7 @@ export const getPracticasData = async () => {
 };
 
 // Función para obtener prácticas de los últimos N días
-export const getPracticasDataLastDays = async (days = 5) => {
+export const getPracticasDataLastDays = async (days = 2) => {
   try {
     console.log(`🔍 Consultando prácticas de los últimos ${days} días`);
     
