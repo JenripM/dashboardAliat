@@ -59,20 +59,18 @@ const Layout = ({ children }) => {
       title: 'Practicas',
       items: [
         { name: 'Convalidación', href: '/convalidacion', icon: UsersIcon },
-      ]
-    },
-    {
-      title: 'Admin',
-      items: [
-        { name: 'Usuarios', href: '/usuarios', icon: UsersIcon },
         { name: 'Empresas', href: '/empresas', icon: BuildingOfficeIcon },
+
       ]
     },
+
         {
       title: 'Cuenta',
       items: [
         { name: 'Configuración', href: '/configuracion', icon: Cog6ToothIcon },
         { name: 'Anuncios y Eventos', href: '/anuncios-eventos', icon: MegaphoneIcon },
+        { name: 'Usuarios', href: '/usuarios', icon: UsersIcon },
+
       ]
     },
   ];
