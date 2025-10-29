@@ -278,11 +278,6 @@ const VistaPanoramica = () => {
         {/* Mejora en Entrevistas */}
         <MejoraEntrevistasChart />
 
-        {/* Estudiantes con mejor performance */}
-        <MejorPerformanceChart />
-
-        {/* Estudiantes con peor performance */}
-        <PeorPerformanceChart />
 
         {/* Impacto de las Herramientas AI (temporalmente deshabilitado) */}
         {/* <ImpactoHerramientasChart /> */}

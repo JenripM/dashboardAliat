@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import MyWorkInLogo from '../assets/images/MyWorkIn (Simbolo)(1).png';
+// Importar logos de universidades
+import UlimaLogo from '../assets/images/ulima.webp';
 import {
   UserGroupIcon,
   QuestionMarkCircleIcon,
@@ -13,13 +15,28 @@ import {
   ChartBarIcon,
   ChartPieIcon,
   MegaphoneIcon,
+  BriefcaseIcon,
 } from '@heroicons/react/24/outline';
+
+// Mapeo de acrónimos a logos de universidades
+const universityLogos = {
+  ulima: UlimaLogo,
+  // Agregar más universidades aquí cuando sea necesario
+};
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const [userEmail] = useState(currentUser?.email || '');
+
+  // Obtener el acrónimo de la universidad desde las variables de entorno
+  const acronimoUniversidad = process.env.REACT_APP_ACRONIMO_UNIVERSIDAD;
+  
+  // Obtener el logo según el acrónimo, o usar el logo por defecto de MyWorkIn
+  const logo = acronimoUniversidad && universityLogos[acronimoUniversidad] 
+    ? universityLogos[acronimoUniversidad] 
+    : MyWorkInLogo;
 
   const handleLogout = async () => {
     try {
@@ -58,6 +75,7 @@ const Layout = ({ children }) => {
     {
       title: 'Practicas',
       items: [
+        { name: 'Prácticas', href: '/practicas', icon: BriefcaseIcon },
         { name: 'Convalidación', href: '/convalidacion', icon: UsersIcon },
         { name: 'Empresas', href: '/empresas', icon: BuildingOfficeIcon },
 
@@ -82,7 +100,7 @@ const Layout = ({ children }) => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center h-16 px-6 border-b border-gray-200">
-            <img src={MyWorkInLogo} alt="MyWorkIn Logo" className="h-8 w-auto" />
+            <img src={logo} alt={acronimoUniversidad ? `${acronimoUniversidad} Logo` : "MyWorkIn Logo"} className="h-8 w-auto" />
             <div className="ml-2 flex flex-col">
               <span className="text-xs text-gray-500">MYWORKIN-DASHBOARD</span>
               <span className="text-[10px] text-gray-400">v0.01</span>

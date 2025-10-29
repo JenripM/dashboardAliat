@@ -4,14 +4,13 @@ import { getFirestore } from "firebase/firestore";
 
 // Config de la segunda app
 const firebaseConfig2 = {
-  apiKey: "AIzaSyADtQbLfYK8HGav1SSPATDnLJpryyuurA0",
-  authDomain: "prueba-login-prueba.firebaseapp.com",
-  projectId: "prueba-login-prueba",
-  storageBucket: "prueba-login-prueba.firebasestorage.app",
-  messagingSenderId: "291661131431",
-  appId: "1:291661131431:web:a8a3ce57ce90e41f41b582"
-};
-
+  apiKey: "AIzaSyB2BYCwpeVhx0ZYd9AQJ2OorCxFJYebm20",
+   authDomain: "ulima-template-empresas.firebaseapp.com",
+   projectId: "ulima-template-empresas",
+   storageBucket: "ulima-template-empresas.firebasestorage.app",
+   messagingSenderId: "686155576780",
+   appId: "1:686155576780:web:6241cc69f9c6cfc2a61969"
+ };
 // Para apps adicionales, se puede dar un nombre distinto
 const app2 = !getApps().some(app => app.name === "secondary") 
   ? initializeApp(firebaseConfig2, "secondary") 
