@@ -1,14 +1,14 @@
-// src/firebase.js (temporal)
+// src/firebase.js
 import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDjxeFgFp71SDg-aafSy0ynQiSsHdkiomM",
-  authDomain: "ulima-template.firebaseapp.com",
-  projectId: "ulima-template",
-  storageBucket: "ulima-template.firebasestorage.app",
-  messagingSenderId: "717193047007",
-  appId: "1:717193047007:web:0e9638c47c769a7b24326a"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
