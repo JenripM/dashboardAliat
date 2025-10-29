@@ -92,11 +92,17 @@ const Practicas = () => {
       const querySnapshot = await getDocs(q);
       
       const practicasData = [];
+      const acronimoUniversidad = process.env.REACT_APP_ACRONIMO_UNIVERSIDAD?.toLowerCase() || 'public';
+      
       querySnapshot.forEach((doc) => {
-        practicasData.push({
-          id: doc.id,
-          ...doc.data()
-        });
+        const data = doc.data();
+        // Solo incluir prácticas que pertenecen a esta universidad
+        if (data.owner === acronimoUniversidad) {
+          practicasData.push({
+            id: doc.id,
+            ...data
+          });
+        }
       });
       
       setPracticas(practicasData);
