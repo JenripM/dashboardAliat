@@ -476,9 +476,9 @@ const Empresas = () => {
             </div>
             <div className="col-span-2 flex justify-end space-x-2">
               <button
-                onClick={() => updateStatus(c.id, 'approved')}
+                onClick={() => updateStatus(c.id, 'active')}
                 className="px-3 py-1 text-sm rounded-md border border-green-600 text-green-700 hover:bg-green-50 disabled:opacity-50"
-                disabled={c.status === 'approved'}
+                disabled={c.status === 'active'}
               >
                 Aceptar
               </button>

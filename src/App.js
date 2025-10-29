@@ -19,6 +19,7 @@ import Login from "./pages/Login";
 import EstudiantesDetail from "./pages/EstudiantesDetail";
 import Convalidacion from "./pages/Convalidacion";
 import ConvalidacionDetail from "./pages/ConvalidacionDetail";
+import Practicas from "./pages/Practicas";
 import Register from "./pages/Register";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminSetup from "./components/AdminSetup";
@@ -75,6 +76,7 @@ function App() {
                       path="/convalidacion/:id"
                       element={<ConvalidacionDetail />}
                     />
+                    <Route path="/practicas" element={<Practicas />} />
                   </Routes>
                 </Layout>
               </PrivateRoute>

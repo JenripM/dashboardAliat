@@ -15,6 +15,7 @@ import {
   ChartBarIcon,
   ChartPieIcon,
   MegaphoneIcon,
+  BriefcaseIcon,
 } from '@heroicons/react/24/outline';
 
 // Mapeo de acrónimos a logos de universidades
@@ -74,6 +75,7 @@ const Layout = ({ children }) => {
     {
       title: 'Practicas',
       items: [
+        { name: 'Prácticas', href: '/practicas', icon: BriefcaseIcon },
         { name: 'Convalidación', href: '/convalidacion', icon: UsersIcon },
         { name: 'Empresas', href: '/empresas', icon: BuildingOfficeIcon },
 
