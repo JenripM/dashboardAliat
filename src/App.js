@@ -13,6 +13,7 @@ import Estudiantes from "./pages/Estudiantes";
 import Configuracion from "./pages/Configuracion";
 import Ayuda from "./pages/Ayuda";
 import AnunciosEventos from "./pages/AnunciosEventos";
+import Asesoria from "./pages/Asesoria";
 import Usuarios from "./pages/Usuarios";
 import Empresas from "./pages/Empresas";
 import Login from "./pages/Login";
@@ -77,6 +78,7 @@ function App() {
                       element={<ConvalidacionDetail />}
                     />
                     <Route path="/practicas" element={<Practicas />} />
+                    <Route path="/asesoria" element={<Asesoria />} />
                   </Routes>
                 </Layout>
               </PrivateRoute>

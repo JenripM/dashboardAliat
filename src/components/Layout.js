@@ -16,6 +16,7 @@ import {
   ChartPieIcon,
   MegaphoneIcon,
   BriefcaseIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline';
 
 // Mapeo de acrónimos a logos de universidades
@@ -81,8 +82,13 @@ const Layout = ({ children }) => {
 
       ]
     },
-
-        {
+    {
+      title: 'Asesoría',
+      items: [
+        { name: 'Asesoría', href: '/asesoria', icon: ChatBubbleLeftRightIcon },
+      ]
+    },
+    {
       title: 'Cuenta',
       items: [
         { name: 'Configuración', href: '/configuracion', icon: Cog6ToothIcon },
@@ -108,7 +114,7 @@ const Layout = ({ children }) => {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 mt-6 space-y-8">
+          <nav className="flex-1 px-4 mt-6 pb-4 space-y-8 overflow-y-auto sidebar-scroll">
             {navigation.map((section) => (
               <div key={section.title}>
                 <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
