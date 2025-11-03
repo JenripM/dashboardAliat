@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import MyWorkInLogo from '../assets/images/MyWorkIn (Simbolo)(1).png';
 // Importar logos de universidades
 import UlimaLogo from '../assets/images/ulima.webp';
+import UtmonterreyLogo from '../assets/images/utmonterrey.webp';
+import AliatLogo from '../assets/images/ualiat.webp';
 import {
   UserGroupIcon,
   QuestionMarkCircleIcon,
@@ -22,6 +24,8 @@ import {
 // Mapeo de acrónimos a logos de universidades
 const universityLogos = {
   ulima: UlimaLogo,
+  utmonterrey: UtmonterreyLogo,
+  aliat: UAliatLogo,
   // Agregar más universidades aquí cuando sea necesario
 };
 
